@@ -1,14 +1,14 @@
 <!-- ⚠️ Change PR title to Jira ticket ⚠️ -->
 
-**Related Issues/Tickets**
-<!-- Link any related issues or JIRA tickets -->
-- QDLY-XXXX
-
----
 
 **🧐 Type of Change**
 <!-- Describe the purpose of this PR. What is being added, changed, or fixed? -->
 <!-- List of major changes or features introduced -->
+
+---
+**Related Issues/Tickets**
+<!-- Link any related issues or JIRA tickets -->
+- QDLY-XXXX
 
 ---
 
