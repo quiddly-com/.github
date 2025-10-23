@@ -2,7 +2,7 @@
 
 **Related Issues/Tickets**
 <!-- Link any related issues or JIRA tickets -->
-- [QDLY-XXXX](https://papyrus-se.atlassian.net/browse/QDLY-XXXX)
+- QDLY-XXXX
 
 ---
 
