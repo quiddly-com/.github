@@ -1,0 +1,31 @@
+name: "Close stale pull requests"
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # Runs every day at 03:00 UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  close-stale-prs:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Close stale PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-pr-message: >
+            👋 This pull request has been inactive for a while.
+            Please comment or push new commits to keep it open.
+            Otherwise, it will be closed in **7 days** due to inactivity.
+          close-pr-message: >
+            🔒 Closing this pull request due to prolonged inactivity.
+            If you’d like to continue working on it, feel free to reopen or open a new PR.
+          days-before-stale: 14          # Warn after 14 days of no activity
+          days-before-close: 2           # Close 2 days after warning
+          exempt-pr-labels: "keep-open"  # Optional: won't mark PRs with this label
+          stale-pr-label: "stale"        # Label added to stale PRs
+          remove-stale-when-updated: true
