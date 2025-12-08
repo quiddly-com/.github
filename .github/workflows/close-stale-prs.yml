@@ -16,7 +16,7 @@ jobs:
       - name: Close stale PRs
         uses: actions/stale@v9
         with:
-          repo-token: ${{ secrets.STALE_PR_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           stale-pr-message: >
             👋 This pull request has been inactive for a while.
             Please comment or push new commits to keep it open.
