@@ -36,6 +36,7 @@ jobs:
                 const labels = pr.labels.map(l => l.name);
                 if (labels.includes('keep-open')) continue;
 
+                const author = pr.user.login;
                 const updatedAt = new Date(pr.updated_at);
                 const daysInactive = (now - updatedAt) / (1000 * 60 * 60 * 24);
 
@@ -45,7 +46,7 @@ jobs:
                     owner: org,
                     repo: repo.name,
                     issue_number: pr.number,
-                    body: 'Closing this pull request due to prolonged inactivity.\nIf you would like to continue working on it, feel free to reopen or open a new PR.',
+                    body: `@${author} Closing this pull request due to prolonged inactivity.\nIf you would like to continue working on it, feel free to reopen or open a new PR.`,
                   });
                   await github.rest.pulls.update({
                     owner: org,
@@ -67,7 +68,7 @@ jobs:
                     owner: org,
                     repo: repo.name,
                     issue_number: pr.number,
-                    body: 'This pull request has been inactive for a while.\nPlease comment or push new commits to keep it open.\nOtherwise, it will be closed in **2 days** due to inactivity.',
+                    body: `@${author} This pull request has been inactive for a while.\nPlease comment or push new commits to keep it open.\nOtherwise, it will be closed in **2 days** due to inactivity.`,
                   });
                   core.info(`Marked PR #${pr.number} in ${repo.name} as stale`);
                 }
