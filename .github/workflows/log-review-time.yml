@@ -1,0 +1,50 @@
+name: Log review time
+on:
+  workflow_call:
+
+jobs:
+  logtime:
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log time to Jira
+        env:
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          JIRA_EMAIL: ${{ secrets[format('JIRA_EMAIL_{0}', github.event.review.user.login)] }}
+          JIRA_TOKEN: ${{ secrets[format('JIRA_TOKEN_{0}', github.event.review.user.login)] }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          CHANGED_FILES: ${{ github.event.pull_request.changed_files }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REVIEWER: ${{ github.event.review.user.login }}
+        run: |
+          if [ -z "$JIRA_TOKEN" ]; then
+            echo "No Jira token for $REVIEWER, skipping"
+            exit 0
+          fi
+
+          TICKET=$(echo "$PR_BODY" | grep -oE 'QDLY-[0-9]+' | head -1)
+          if [ -z "$TICKET" ]; then
+            echo "No QDLY ticket found in PR body, skipping"
+            exit 0
+          fi
+
+          if [ "$CHANGED_FILES" -le 6 ]; then
+            TIME="15m"
+          else
+            TIME="30m"
+          fi
+
+          curl -fsS -u "$JIRA_EMAIL:$JIRA_TOKEN" \
+            -X POST -H "Content-Type: application/json" \
+            "$JIRA_URL/rest/api/3/issue/$TICKET/worklog" \
+            -d "{
+              \"timeSpent\": \"$TIME\",
+              \"comment\": {
+                \"type\": \"doc\",
+                \"version\": 1,
+                \"content\": [{
+                  \"type\": \"paragraph\",
+                  \"content\": [{\"type\": \"text\", \"text\": \"PR review #$PR_NUMBER\"}]
+                }]
+              }
+            }"
