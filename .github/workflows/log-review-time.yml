@@ -12,7 +12,9 @@ jobs:
           JIRA_URL: ${{ secrets.JIRA_URL }}
           JIRA_EMAIL: ${{ secrets[format('JIRA_EMAIL_{0}', github.event.review.user.login)] }}
           JIRA_TOKEN: ${{ secrets[format('JIRA_TOKEN_{0}', github.event.review.user.login)] }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REVIEWER: ${{ github.event.review.user.login }}
           REPO: ${{ github.repository }}
@@ -23,9 +25,23 @@ jobs:
             exit 0
           fi
 
-          TICKET=$(echo "$PR_BODY" | grep -oE 'QDLY-[0-9]+' | head -1)
+          TICKET=$(echo "$PR_TITLE" | grep -oE 'QDLY-[0-9]+' | head -1)
+          if [ -n "$TICKET" ]; then
+            echo "Ticket $TICKET found in PR title"
+          else
+            TICKET=$(echo "$PR_BODY" | grep -oE 'QDLY-[0-9]+' | head -1)
+            if [ -n "$TICKET" ]; then
+              echo "Ticket $TICKET found in PR body"
+            else
+              TICKET=$(echo "$PR_BRANCH" | grep -oE 'QDLY-[0-9]+' | head -1)
+              if [ -n "$TICKET" ]; then
+                echo "Ticket $TICKET found in branch name"
+              fi
+            fi
+          fi
+
           if [ -z "$TICKET" ]; then
-            echo "No QDLY ticket found in PR body, skipping"
+            echo "No QDLY ticket found in title, body, or branch name; skipping"
             exit 0
           fi
 
