@@ -13,9 +13,10 @@ jobs:
           JIRA_EMAIL: ${{ secrets[format('JIRA_EMAIL_{0}', github.event.review.user.login)] }}
           JIRA_TOKEN: ${{ secrets[format('JIRA_TOKEN_{0}', github.event.review.user.login)] }}
           PR_BODY: ${{ github.event.pull_request.body }}
-          CHANGED_FILES: ${{ github.event.pull_request.changed_files }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REVIEWER: ${{ github.event.review.user.login }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ -z "$JIRA_TOKEN" ]; then
             echo "No Jira token for $REVIEWER, skipping"
@@ -27,6 +28,9 @@ jobs:
             echo "No QDLY ticket found in PR body, skipping"
             exit 0
           fi
+
+          CHANGED_FILES=$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq '.changed_files')
+          echo "Changed files: $CHANGED_FILES"
 
           if [ "$CHANGED_FILES" -le 6 ]; then
             TIME="15m"
