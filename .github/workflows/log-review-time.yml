@@ -7,11 +7,17 @@ jobs:
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     steps:
+      - name: Compute secret suffix
+        id: who
+        env:
+          LOGIN: ${{ github.event.review.user.login }}
+        run: echo "key=$(echo "$LOGIN" | tr '[:lower:]-' '[:upper:]_')" >> "$GITHUB_OUTPUT"
+
       - name: Log time to Jira
         env:
           JIRA_URL: ${{ secrets.JIRA_URL }}
-          JIRA_EMAIL: ${{ secrets[format('JIRA_EMAIL_{0}', github.event.review.user.login)] }}
-          JIRA_TOKEN: ${{ secrets[format('JIRA_TOKEN_{0}', github.event.review.user.login)] }}
+          JIRA_EMAIL: ${{ secrets[format('JIRA_EMAIL_{0}', steps.who.outputs.key)] }}
+          JIRA_TOKEN: ${{ secrets[format('JIRA_TOKEN_{0}', steps.who.outputs.key)] }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_BRANCH: ${{ github.event.pull_request.head.ref }}
